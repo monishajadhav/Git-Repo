@@ -1,11 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Calculator</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(160deg, #dbeafe, var(--bg));
+      color: var(--text);
+      padding: 16px;
+    }
+
+    .calculator {
+      width: 100%;
+      max-width: 420px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+      padding: 18px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: 1.3rem;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+      cursor: pointer;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-hover);
+      border-color: var(--danger-hover);
+    }
+
+    .result {
+      margin-top: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      text-align: center;
+      min-height: 47px;
+      display: grid;
+      place-items: center;
+      background: #f9fafb;
+    }
+
+    .history {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .history-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .history-list {
+      margin: 0;
+      padding-left: 20px;
+      max-height: 180px;
+      overflow-y: auto;
+      color: var(--text);
+    }
+
+    .history-list li {
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .history-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .small-btn {
+      width: auto;
+      padding: 8px 10px;
+      font-size: 0.87rem;
+    }
+  </style>
 </head>
 <body>
-    
+  <main class="calculator" aria-label="Simple calculator">
+    <h1>Simple Calculator</h1>
+
+    <div class="row">
+      <label for="num1">First Number</label>
+      <input id="num1" type="number" step="any" placeholder="Enter first number" />
+    </div>
+
+    <div class="row">
+      <label for="operator">Operation</label>
+      <select id="operator">
+        <option value="+">Addition (+)</option>
+        <option value="-">Subtraction (-)</option>
+        <option value="*">Multiplication (×)</option>
+        <option value="/">Division (÷)</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label for="num2">Second Number</label>
+      <input id="num2" type="number" step="any" placeholder="Enter second number" />
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="calculateBtn" type="button">Calculate</button>
+      <button class="btn-danger" id="clearBtn" type="button">Clear</button>
+    </div>
+
+    <output id="result" class="result" aria-live="polite">Result will appear here</output>
+
+    <section class="history" aria-label="Calculation history">
+      <div class="history-head">
+        <h2>Calculation History</h2>
+        <button class="btn-danger small-btn" id="clearHistoryBtn" type="button">Clear History</button>
+      </div>
+      <p id="historyEmpty" class="history-empty">No calculations yet.</p>
+      <ol id="historyList" class="history-list" hidden></ol>
+    </section>
+  </main>
+
+  <script>
+    const num1Input = document.getElementById('num1');
+    const num2Input = document.getElementById('num2');
+    const operatorInput = document.getElementById('operator');
+    const resultOutput = document.getElementById('result');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const historyList = document.getElementById('historyList');
+    const historyEmpty = document.getElementById('historyEmpty');
+
+    const calculationHistory = [];
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+
+      if (calculationHistory.length === 0) {
+        historyEmpty.hidden = false;
+        historyList.hidden = true;
+        return;
+      }
+
+      historyEmpty.hidden = true;
+      historyList.hidden = false;
+
+      for (let index = calculationHistory.length - 1; index >= 0; index -= 1) {
+        const item = document.createElement('li');
+        item.textContent = calculationHistory[index];
+        historyList.appendChild(item);
+      }
+    }
+
+    function calculate() {
+      const n1 = Number(num1Input.value);
+      const n2 = Number(num2Input.value);
+      const op = operatorInput.value;
+
+      if (num1Input.value === '' || num2Input.value === '') {
+        resultOutput.textContent = 'Please enter both numbers.';
+        return;
+      }
+
+      let value;
+      if (op === '+') value = n1 + n2;
+      if (op === '-') value = n1 - n2;
+      if (op === '*') value = n1 * n2;
+      if (op === '/') {
+        if (n2 === 0) {
+          resultOutput.textContent = 'Cannot divide by zero.';
+          return;
+        }
+        value = n1 / n2;
+      }
+
+      const historyEntry = `${n1} ${op} ${n2} = ${value}`;
+      calculationHistory.push(historyEntry);
+      resultOutput.textContent = `Result: ${value}`;
+      renderHistory();
+    }
+
+    function clearForm() {
+      num1Input.value = '';
+      num2Input.value = '';
+      operatorInput.value = '+';
+      resultOutput.textContent = 'Result will appear here';
+      num1Input.focus();
+    }
+
+    function clearHistory() {
+      calculationHistory.length = 0;
+      renderHistory();
+    }
+
+    calculateBtn.addEventListener('click', calculate);
+    clearBtn.addEventListener('click', clearForm);
+    clearHistoryBtn.addEventListener('click', clearHistory);
+  </script>
 </body>
 </html>
